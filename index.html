@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/png" href="fav.png">
+    <title>Generador de Enlace de Descarga Directa</title>
+    <style>
+		body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: rgb(48,100,159);
+			background: radial-gradient(circle, rgba(48,100,159,1) 0%, rgb(67, 82, 117) 60%);
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 16px;
+        }
+        .container {
+            background: #2d2d2d;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            height: 240px;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+        .input-wrapper {
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        input {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #555;
+            background: #3a3a3a;
+            color: #ffffff;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .clear-button {
+            background: none;
+            border: 1px solid #555;
+            cursor: pointer;
+            width: 10%;
+            margin-bottom: 16px;
+            color: #ffffff;
+            font-size: 20px;
+            display: none;
+            padding: 4px 4px;
+            border-radius: 4px;
+        }
+        
+        .clear-button:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        button, .btn-link {
+            width: 45%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background-color: #007acc;
+            margin-bottom: 16px;
+        }
+        .btn-primary:hover {
+            background-color: #005f99;
+        }
+        .btn-secondary {
+            background-color: #00c853;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-secondary:hover {
+            background-color: #009624;
+        }
+        .btn-link {
+            background-color: #00c853;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-link:hover {
+            background-color: #009624;
+        }
+        .link-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .hidden {
+            display: none;
+        }
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+        .notification {
+            height: 30px;
+            color: #ffffff;
+            font-size: 1.3rem;
+            visibility: hidden;
+        }
+    </style>
+    <script>
+        function generarEnlace() {
+        const inputLink = document.getElementById("inputLink").value.trim();
+        const match = inputLink.match(/(?:drive\.google\.com\/.*id=|\/d\/|open\?id=)([-\w]{33})/);
+
+        if (match && match[1]) {
+            const fileId = match[1];
+            const directLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+            document.getElementById("outputLink").value = directLink;
+            document.getElementById("downloadLink").href = directLink;
+            document.getElementById("downloadLink").classList.remove("hidden");
+            document.getElementById("copyButton").classList.remove("hidden");
+        } else {
+            mostrarNotificacion("Ingresa un enlace válido de Google Drive");
+            document.getElementById("outputLink").value = "";
+            document.getElementById("downloadLink").classList.add("hidden");
+            document.getElementById("copyButton").classList.add("hidden");
+        }
+}
+
+        function copiarEnlace() {
+            const outputLink = document.getElementById("outputLink");
+            navigator.clipboard.writeText(outputLink.value)
+                .then(() => mostrarNotificacion("¡Enlace copiado!"))
+                .catch(() => alert("Error al copiar el enlace"));
+        }
+
+        function mostrarNotificacion(mensaje) {
+            const notification = document.getElementById("notification");
+            notification.textContent = mensaje;
+            notification.style.visibility = "visible";
+            setTimeout(() => {
+                notification.style.visibility = "hidden";
+            }, 2000);
+        }
+        function limpiarCampo() {
+            const inputLink = document.getElementById("inputLink");
+            const outputLink = document.getElementById("outputLink");
+            const downloadLink = document.getElementById("downloadLink");
+            const copyButton = document.getElementById("copyButton");
+        
+            inputLink.value = "";
+            outputLink.value = "";
+            downloadLink.classList.add("hidden");
+            copyButton.classList.add("hidden");
+            document.getElementById("clearButton").style.display = "none";
+        }
+        
+                function mostrarBotonBorrar() {
+                    const inputLink = document.getElementById("inputLink");
+                    const clearButton = document.getElementById("clearButton");
+                    clearButton.style.display = inputLink.value ? "block" : "none";
+                }
+    </script>
+</head>
+<body>
+    <span id="notification" class="notification"></span>
+    <div class="container">
+        <h2>Generador de Enlace de Descarga Directa</h2>
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input type="text" id="inputLink" placeholder="Ingresa el enlace de Google Drive" oninput="mostrarBotonBorrar()">
+            </div>
+            <button id="clearButton" class="clear-button" onclick="limpiarCampo()">×</button>
+        </div>
+        
+        <button class="btn-primary" onclick="generarEnlace()">Generar Enlace</button>
+        <input type="text" id="outputLink" readonly>
+        <div class="link-container">
+            <a id="downloadLink" href="#" target="_blank" class="btn-link hidden" aria-label="Descargar archivo">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor">
+                    <path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"/>
+                </svg>
+            </a>
+            <button id="copyButton" class="btn-secondary hidden" onclick="copiarEnlace()" aria-label="Copiar enlace">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor">
+				<path d="M184,64H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H184a8,8,0,0,0,8-8V72A8,8,0,0,0,184,64Zm-8,144H48V80H176ZM224,40V184a8,8,0,0,1-16,0V48H72a8,8,0,0,1,0-16H216A8,8,0,0,1,224,40Z"/>
+				</svg>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
